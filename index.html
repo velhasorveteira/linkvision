@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>LinkVision | Veredito Técnico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'link-bg': '#232323',
+              'link-white': '#FFFFFF',
+              'link-teal': '#0E7C7B',
+              'link-orange': '#F39237',
+              'link-salmon': '#E26D5C',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'zoom-in': 'zoomIn 0.4s ease-out forwards',
+              'page-in': 'pageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'shimmer': 'shimmer 2s infinite linear',
+            },
+            keyframes: {
+              shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --app-height: 100%;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #232323;
+        color: #FFFFFF;
+        margin: 0;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 10px;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      
+      .min-h-screen-ios {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+
+      /* Standardized Input & Button Heights */
+      .ui-input-h { height: 3.5rem; }
+      .ui-btn-h { height: 3.5rem; }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.97); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes pageIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .animate-in {
+        animation-fill-mode: forwards;
+      }
+      .fade-in { animation: fadeIn 0.4s ease-out; }
+      .slide-in-from-bottom-5 { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+      .slide-in-from-right-10 { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+      .zoom-in-95 { animation: zoomIn 0.3s ease-out; }
+      
+      .safe-bottom {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.48.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
