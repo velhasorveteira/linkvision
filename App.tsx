@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // import { analyzeGameplayVideo, translateInterface } from './services/geminiService';
 // import { signInWithGoogle, signOut, saveAnalysisToDb, supabase } from './services/supabase';
 import { analyzeGameplayVideo, translateInterface } from './services/geminiService';
+import { saveAnalysisToDb } from './services/supabase';
 import { AuthProvider, useAuth } from './services/auth';
 import Login from './components/Login';
 import { AppState, Language, VideoQuality } from './types';
@@ -14,6 +15,7 @@ import CourtExplorer from './components/CourtExplorer';
 import RankingHub from './components/RankingHub';
 import SettingsModal from './components/SettingsModal';
 import TournamentHub from './components/TournamentHub';
+import PaymentBlocker from './components/PaymentBlocker';
 
 const DEFAULT_UI = {
   newsView: 'News',
@@ -89,7 +91,13 @@ const App: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toast, setToast] = useState<{ message: string, visible: boolean }>({ message: '', visible: false });
 
-  const { user, loading, logout } = useAuth();
+  const { user, userData, loading, logout } = useAuth();
+
+  useEffect(() => {
+    console.log("Current View:", state.view);
+    console.log("User Data Status:", userData?.status);
+    console.log("Is Blocked:", userData?.status !== 'active' && state.view !== 'news');
+  }, [state.view, userData]);
 
   // Removido useEffect do Supabase
 
@@ -204,120 +212,128 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:py-10 pb-44 lg:pb-12">
-        <div key={state.view} className="animate-in fade-in slide-in-from-bottom-5">
-          {state.view === 'judge' && (
-            <div className="space-y-6 sm:space-y-10">
-              <div className="flex bg-[#1a1a1a] p-1.5 rounded-2xl border border-[#333] w-full max-w-[320px] mx-auto shadow-2xl">
-                <button
-                  onClick={() => setState(p => ({ ...p, judgeMode: 'video' }))}
-                  className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${state.judgeMode === 'video' ? 'bg-[#0E7C7B] text-white shadow-xl' : 'text-slate-500'}`}
-                >
-                  {ui.videoTab}
-                </button>
-                <button
-                  onClick={() => setState(p => ({ ...p, judgeMode: 'realtime' }))}
-                  className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${state.judgeMode === 'realtime' ? 'bg-[#F39237] text-white shadow-xl' : 'text-slate-500'}`}
-                >
-                  {ui.realtimeTab}
-                </button>
-              </div>
+        <div key={state.view} className="animate-in fade-in slide-in-from-bottom-5 h-full min-h-[50vh]">
+          {userData?.status !== 'active' && state.view !== 'news' ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <PaymentBlocker />
+            </div>
+          ) : (
+            <>
+              {state.view === 'judge' && (
+                <div className="space-y-6 sm:space-y-10">
+                  <div className="flex bg-[#1a1a1a] p-1.5 rounded-2xl border border-[#333] w-full max-w-[320px] mx-auto shadow-2xl">
+                    <button
+                      onClick={() => setState(p => ({ ...p, judgeMode: 'video' }))}
+                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${state.judgeMode === 'video' ? 'bg-[#0E7C7B] text-white shadow-xl' : 'text-slate-500'}`}
+                    >
+                      {ui.videoTab}
+                    </button>
+                    <button
+                      onClick={() => setState(p => ({ ...p, judgeMode: 'realtime' }))}
+                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${state.judgeMode === 'realtime' ? 'bg-[#F39237] text-white shadow-xl' : 'text-slate-500'}`}
+                    >
+                      {ui.realtimeTab}
+                    </button>
+                  </div>
 
-              {state.error && (
-                <div className="max-w-md mx-auto p-4 bg-red-500/10 border border-red-500/50 rounded-2xl text-center text-red-500 text-xs font-bold animate-in slide-up uppercase tracking-widest">
-                  {state.error}
+                  {state.error && (
+                    <div className="max-w-md mx-auto p-4 bg-red-500/10 border border-red-500/50 rounded-2xl text-center text-red-500 text-xs font-bold animate-in slide-up uppercase tracking-widest">
+                      {state.error}
+                    </div>
+                  )}
+
+                  {state.judgeMode === 'video' && (
+                    !state.result ? (
+                      <div className="space-y-8">
+                        <div className="flex flex-col items-center justify-center py-16 sm:py-24 bg-[#1a1a1a] rounded-[3rem] border border-[#333] border-dashed hover:border-[#0E7C7B] transition-all group px-6 text-center shadow-xl relative overflow-hidden">
+                          <input type="file" className="hidden" id="video-upload" accept="video/*" onChange={handleVideoUpload} />
+                          <label htmlFor="video-upload" className="cursor-pointer flex flex-col items-center gap-6 w-full max-w-xs z-10">
+                            <div className="w-20 h-20 bg-[#0E7C7B]/10 rounded-full flex items-center justify-center text-[#0E7C7B] group-active:scale-110 transition-all border border-[#0E7C7B]/20 shadow-[0_0_40px_rgba(14,124,123,0.1)]">
+                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeWidth={3} /></svg>
+                            </div>
+                            <div className="space-y-2">
+                              <span className="text-sm font-black uppercase tracking-widest text-slate-300 block line-clamp-1">{state.videoFile ? state.videoFile.name : ui.selectGameplay}</span>
+                              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest opacity-60">MP4, MOV | Suporta arquivos grandes</p>
+                            </div>
+                          </label>
+
+                          {/* BARRA DE PROGRESSO DE CARREGAMENTO */}
+                          {state.isAnalyzing && (
+                            <div className="absolute inset-x-0 bottom-0 h-1 bg-[#111]">
+                              <div
+                                className="h-full bg-[#0E7C7B] transition-all duration-300 shadow-[0_0_10px_#0E7C7B]"
+                                style={{ width: `${uploadProgress}%` }}
+                              />
+                            </div>
+                          )}
+
+                          {state.videoFile && !state.isAnalyzing && (
+                            <button onClick={handleAnalyzeVideo} className="mt-10 w-full max-w-[240px] h-14 bg-[#0E7C7B] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl active:scale-95 transition-all z-10">
+                              {ui.applyJudgment}
+                            </button>
+                          )}
+
+                          {state.isAnalyzing && (
+                            <div className="mt-10 flex flex-col items-center gap-4 z-10">
+                              <div className="relative">
+                                <div className="w-12 h-12 border-4 border-[#0E7C7B]/20 border-t-[#0E7C7B] rounded-full animate-spin"></div>
+                                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-[#0E7C7B]">{uploadProgress}%</span>
+                              </div>
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0E7C7B] animate-pulse">
+                                {uploadProgress < 100 ? 'Lendo Arquivo...' : ui.processing}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* AUTO-ANALYZE TOGGLE */}
+                        <div className="flex justify-center">
+                          <button
+                            onClick={toggleAutoStart}
+                            className="flex items-center gap-4 bg-[#1a1a1a] border border-[#333] px-6 py-4 rounded-3xl hover:border-[#0E7C7B] transition-all group"
+                          >
+                            <div className={`w-12 h-6 rounded-full relative transition-all ${state.autoStart ? 'bg-[#0E7C7B]' : 'bg-[#333]'}`}>
+                              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${state.autoStart ? 'left-7' : 'left-1'}`} />
+                            </div>
+                            <div className="flex flex-col items-start">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white">{ui.autoAnalyze}</span>
+                              <span className="text-[8px] text-slate-600 font-bold uppercase tracking-tighter">{state.autoStart ? 'ENABLED' : 'DISABLED'}</span>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="flex justify-center sm:justify-start">
+                          <button onClick={() => setState(p => ({ ...p, result: null, videoFile: null }))} className="h-12 px-6 bg-[#1a1a1a] border border-[#333] rounded-xl text-[9px] font-black uppercase text-[#F39237] tracking-widest flex items-center gap-2 active:scale-95 transition-all">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            {ui.backToStart}
+                          </button>
+                        </div>
+                        <AnalysisDashboard
+                          result={state.result}
+                          language={state.language}
+                          onCalibrate={() => { }}
+                          videoUrl={state.videoFile ? URL.createObjectURL(state.videoFile) : undefined}
+                          autoPlay={state.autoStart}
+                        />
+                      </div>
+                    )
+                  )}
+
+                  {state.judgeMode === 'realtime' && (
+                    <RealTimeJudge language={state.language} onFinish={(res) => setState(p => ({ ...p, result: res, judgeMode: 'video' }))} />
+                  )}
                 </div>
               )}
 
-              {state.judgeMode === 'video' && (
-                !state.result ? (
-                  <div className="space-y-8">
-                    <div className="flex flex-col items-center justify-center py-16 sm:py-24 bg-[#1a1a1a] rounded-[3rem] border border-[#333] border-dashed hover:border-[#0E7C7B] transition-all group px-6 text-center shadow-xl relative overflow-hidden">
-                      <input type="file" className="hidden" id="video-upload" accept="video/*" onChange={handleVideoUpload} />
-                      <label htmlFor="video-upload" className="cursor-pointer flex flex-col items-center gap-6 w-full max-w-xs z-10">
-                        <div className="w-20 h-20 bg-[#0E7C7B]/10 rounded-full flex items-center justify-center text-[#0E7C7B] group-active:scale-110 transition-all border border-[#0E7C7B]/20 shadow-[0_0_40px_rgba(14,124,123,0.1)]">
-                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeWidth={3} /></svg>
-                        </div>
-                        <div className="space-y-2">
-                          <span className="text-sm font-black uppercase tracking-widest text-slate-300 block line-clamp-1">{state.videoFile ? state.videoFile.name : ui.selectGameplay}</span>
-                          <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest opacity-60">MP4, MOV | Suporta arquivos grandes</p>
-                        </div>
-                      </label>
-
-                      {/* BARRA DE PROGRESSO DE CARREGAMENTO */}
-                      {state.isAnalyzing && (
-                        <div className="absolute inset-x-0 bottom-0 h-1 bg-[#111]">
-                          <div
-                            className="h-full bg-[#0E7C7B] transition-all duration-300 shadow-[0_0_10px_#0E7C7B]"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
-                        </div>
-                      )}
-
-                      {state.videoFile && !state.isAnalyzing && (
-                        <button onClick={handleAnalyzeVideo} className="mt-10 w-full max-w-[240px] h-14 bg-[#0E7C7B] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl active:scale-95 transition-all z-10">
-                          {ui.applyJudgment}
-                        </button>
-                      )}
-
-                      {state.isAnalyzing && (
-                        <div className="mt-10 flex flex-col items-center gap-4 z-10">
-                          <div className="relative">
-                            <div className="w-12 h-12 border-4 border-[#0E7C7B]/20 border-t-[#0E7C7B] rounded-full animate-spin"></div>
-                            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-[#0E7C7B]">{uploadProgress}%</span>
-                          </div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0E7C7B] animate-pulse">
-                            {uploadProgress < 100 ? 'Lendo Arquivo...' : ui.processing}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* AUTO-ANALYZE TOGGLE */}
-                    <div className="flex justify-center">
-                      <button
-                        onClick={toggleAutoStart}
-                        className="flex items-center gap-4 bg-[#1a1a1a] border border-[#333] px-6 py-4 rounded-3xl hover:border-[#0E7C7B] transition-all group"
-                      >
-                        <div className={`w-12 h-6 rounded-full relative transition-all ${state.autoStart ? 'bg-[#0E7C7B]' : 'bg-[#333]'}`}>
-                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${state.autoStart ? 'left-7' : 'left-1'}`} />
-                        </div>
-                        <div className="flex flex-col items-start">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white">{ui.autoAnalyze}</span>
-                          <span className="text-[8px] text-slate-600 font-bold uppercase tracking-tighter">{state.autoStart ? 'ENABLED' : 'DISABLED'}</span>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="flex justify-center sm:justify-start">
-                      <button onClick={() => setState(p => ({ ...p, result: null, videoFile: null }))} className="h-12 px-6 bg-[#1a1a1a] border border-[#333] rounded-xl text-[9px] font-black uppercase text-[#F39237] tracking-widest flex items-center gap-2 active:scale-95 transition-all">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                        {ui.backToStart}
-                      </button>
-                    </div>
-                    <AnalysisDashboard
-                      result={state.result}
-                      language={state.language}
-                      onCalibrate={() => { }}
-                      videoUrl={state.videoFile ? URL.createObjectURL(state.videoFile) : undefined}
-                      autoPlay={state.autoStart}
-                    />
-                  </div>
-                )
-              )}
-
-              {state.judgeMode === 'realtime' && (
-                <RealTimeJudge language={state.language} onFinish={(res) => setState(p => ({ ...p, result: res, judgeMode: 'video' }))} />
-              )}
-            </div>
+              {state.view === 'news' && <NewsHub language={state.language} />}
+              {state.view === 'torneios' && <TournamentHub language={state.language} user={user} />}
+              {state.view === 'rackets' && <RacketComparison language={state.language} />}
+              {state.view === 'courts' && <CourtExplorer language={state.language} />}
+              {state.view === 'ranking' && <RankingHub language={state.language} />}
+            </>
           )}
-
-          {state.view === 'news' && <NewsHub language={state.language} />}
-          {state.view === 'torneios' && <TournamentHub language={state.language} user={user} />}
-          {state.view === 'rackets' && <RacketComparison language={state.language} />}
-          {state.view === 'courts' && <CourtExplorer language={state.language} />}
-          {state.view === 'ranking' && <RankingHub language={state.language} />}
         </div>
       </main>
 

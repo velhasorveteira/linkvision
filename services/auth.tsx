@@ -12,10 +12,17 @@ import {
     browserLocalPersistence,
     browserSessionPersistence
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './firebase';
+
+interface UserData {
+    status?: 'active' | 'em analise' | 'blocked';
+    [key: string]: any;
+}
 
 interface AuthContextType {
     user: User | null;
+    userData: UserData | null;
     loading: boolean;
     loginWithGoogle: () => Promise<void>;
     loginWithEmail: (email: string, pass: string, remember: boolean) => Promise<void>;
@@ -27,15 +34,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-            setLoading(false);
+        let unsubDoc: (() => void) | undefined;
+
+        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+            setUser(authUser);
+
+            // Cleanup previous document listener if exists
+            if (unsubDoc) {
+                unsubDoc();
+                unsubDoc = undefined;
+            }
+
+            if (authUser) {
+                try {
+                    const customerRef = doc(db, 'customers', authUser.uid);
+                    unsubDoc = onSnapshot(customerRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data() as UserData;
+                            console.log("Fetched User Data from Firestore:", data);
+                            setUserData(data);
+                        } else {
+                            console.log("User document does not exist in Firestore at:", customerRef.path);
+                            setUserData({});
+                        }
+                        setLoading(false);
+                    }, (error) => {
+                        console.error("Firestore snapshot error:", error);
+                        setUserData({});
+                        setLoading(false);
+                    });
+                } catch (err) {
+                    console.error("Error setting up listener:", err);
+                    setUserData({});
+                    setLoading(false);
+                }
+            } else {
+                setUserData(null);
+                setLoading(false);
+            }
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            if (unsubDoc) unsubDoc();
+        };
     }, []);
 
     const loginWithGoogle = async () => {
@@ -79,8 +125,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginWithEmail, signupWithEmail, logout }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ user, userData, loading, loginWithGoogle, loginWithEmail, signupWithEmail, logout }}>
+            {children}
         </AuthContext.Provider>
     );
 };
@@ -92,3 +138,4 @@ export const useAuth = () => {
     }
     return context;
 };
+
