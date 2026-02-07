@@ -150,7 +150,7 @@ const RacketCard = ({ racket, onOpenDetails, onSelect, isSelected, onImageFound,
           <div className="flex flex-col items-center gap-4 px-6 text-center animate-in fade-in">
             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center text-red-500/50">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            </div>
+            </div >
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] block">{isPt ? 'Imagem não encontrada' : 'Image not found'}</span>
               <div className="flex flex-col gap-2 mt-2">
@@ -167,11 +167,11 @@ const RacketCard = ({ racket, onOpenDetails, onSelect, isSelected, onImageFound,
                 >
                   {isPt ? 'Gerar com IA' : 'Generate with AI'}
                 </button>
-              </div>
-            </div>
-          </div>
+              </div >
+            </div >
+          </div >
         ) : null}
-      </div>
+      </div >
 
       <div className="space-y-4 px-1 pb-2">
         <span className="text-[10px] font-black text-[#F39237] uppercase tracking-[0.3em] block opacity-70">{racket.brand}</span>
@@ -180,9 +180,9 @@ const RacketCard = ({ racket, onOpenDetails, onSelect, isSelected, onImageFound,
           <SpecBar condensed label="Power" value={racket.powerLevel} color="bg-link-salmon" icon={<Icons.Power />} />
           <SpecBar condensed label="Control" value={racket.controlLevel} color="bg-link-teal" icon={<Icons.Control />} />
           <SpecBar condensed label="Comfort" value={racket.comfortLevel} color="bg-link-orange" icon={<Icons.Comfort />} />
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   );
 };
 
@@ -246,7 +246,9 @@ const RacketComparison: React.FC<{ language: Language }> = ({ language }) => {
         return combined;
       });
       setVisibleCount(BATCH_SIZE);
-    } catch (e) { console.error(e); } finally {
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -287,7 +289,6 @@ const RacketComparison: React.FC<{ language: Language }> = ({ language }) => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d')?.drawImage(video, 0, 0);
-
     const base64 = canvas.toDataURL('image/jpeg', 0.8);
     try {
       const identified = await identify_racket_from_image(base64);
@@ -332,14 +333,16 @@ const RacketComparison: React.FC<{ language: Language }> = ({ language }) => {
           <button onClick={() => handleSearch()} className="h-16 bg-[#F39237] text-white px-12 rounded-[1.5rem] text-[11px] font-black uppercase active:scale-95 transition-all shadow-xl">BUSCAR</button>
         </div>
         <div className="flex flex-wrap justify-center gap-3 py-2">
-          {BRANDS.map(brand => (
-            <button
-              key={brand} onClick={() => { setSelectedBrand(brand); setVisibleCount(BATCH_SIZE); }}
-              className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${selectedBrand === brand ? 'bg-[#0E7C7B] border-[#0E7C7B] text-white' : 'bg-[#1a1a1a] border-[#333] text-slate-500 hover:text-white'}`}
-            >
-              {brand}
-            </button>
-          ))}
+          {
+            BRANDS.map(brand => (
+              <button
+                key={brand} onClick={() => { setSelectedBrand(brand); setVisibleCount(BATCH_SIZE); }}
+                className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${selectedBrand === brand ? 'bg-[#0E7C7B] border-[#0E7C7B] text-white' : 'bg-[#1a1a1a] border-[#333] text-slate-500 hover:text-white'}`}
+              >
+                {brand}
+              </button>
+            ))
+          }
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 py-2">
@@ -353,7 +356,7 @@ const RacketComparison: React.FC<{ language: Language }> = ({ language }) => {
             </button>
           ))}
         </div>
-      </div>
+      </div >
 
       {isLoading && (
         <div className="flex justify-center py-10">
@@ -372,188 +375,199 @@ const RacketComparison: React.FC<{ language: Language }> = ({ language }) => {
         ))}
       </div>
 
-      {visibleCount < filteredRackets.length && (
-        <div className="flex justify-center mt-16 pb-12">
-          <button onClick={() => setVisibleCount(v => v + BATCH_SIZE)} className="group flex flex-col items-center gap-4 active:scale-95 transition-all">
-            <div className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-full text-3xl font-light text-slate-400 group-hover:border-[#F39237] group-hover:text-[#F39237] shadow-xl flex items-center justify-center transition-all">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 group-hover:text-[#F39237] transition-colors">{isPt ? 'VER MAIS' : 'LOAD MORE'}</span>
-          </button>
-        </div>
-      )}
+      {
+        visibleCount < filteredRackets.length && (
+          <div className="flex justify-center mt-16 pb-12">
+            <button onClick={() => setVisibleCount(v => v + BATCH_SIZE)} className="group flex flex-col items-center gap-4 active:scale-95 transition-all">
+              <div className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-full text-3xl font-light text-slate-400 group-hover:border-[#F39237] group-hover:text-[#F39237] shadow-xl flex items-center justify-center transition-all">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 group-hover:text-[#F39237] transition-colors">{isPt ? 'VER MAIS' : 'LOAD MORE'}</span>
+            </button>
+          </div >
+        )
+      }
 
       {/* Camera Modal */}
-      {isCameraActive && (
-        <div className="fixed inset-0 z-[700] bg-black/95 flex flex-col items-center justify-center p-6 animate-in fade-in">
-          <div className="relative w-full max-w-xl aspect-[3/4] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-            <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-            <canvas ref={canvasRef} className="hidden" />
+      {
+        isCameraActive && (
+          <div className="fixed inset-0 z-[700] bg-black/95 flex flex-col items-center justify-center p-6 animate-in fade-in">
+            <div className="relative w-full max-w-xl aspect-[3/4] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+              <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+              <canvas ref={canvasRef} className="hidden" />
 
-            {/* Overlay guides */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-[80%] aspect-[1/2] border-2 border-white/20 border-dashed rounded-3xl"></div>
-            </div>
+              {/* Overlay guides */}
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="w-[80%] aspect-[1/2] border-2 border-white/20 border-dashed rounded-3xl"></div>
+              </div>
 
-            <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-10">
-              <button onClick={closeCamera} className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-white">✕</button>
-              <button
-                onClick={captureAndIdentify} disabled={isIdentifying}
-                className={`w-24 h-24 rounded-full border-4 border-white flex items-center justify-center transition-all ${isIdentifying ? 'bg-white/20 scale-90' : 'bg-white/40 active:scale-90 shadow-[0_0_40px_rgba(255,255,255,0.3)]'}`}
-              >
-                {isIdentifying ? <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div> : <div className="w-16 h-16 bg-white rounded-full"></div>}
-              </button>
-              <div className="w-16 h-16"></div> {/* spacer */}
-            </div>
-          </div>
-          <p className="mt-8 text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 text-center px-10">
-            {isIdentifying ? (isPt ? 'ANALISANDO EQUIPAMENTO...' : 'ANALYZING EQUIPMENT...') : (isPt ? 'POSICIONE A RAQUETE NO CENTRO' : 'POSITION THE RACKET IN THE CENTER')}
-          </p>
-        </div>
-      )}
-
-      {comparisonSelection.length > 0 && (
-        <div className="fixed bottom-24 lg:bottom-12 left-1/2 -translate-x-1/2 z-[400] w-full max-w-2xl px-4 animate-in slide-up">
-          <div className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 p-4 rounded-[2.5rem] shadow-2xl flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
-              {comparisonSelection.map(r => (
-                <div key={r.id} className="relative w-14 h-14 bg-black rounded-2xl border border-white/10 p-2 flex-shrink-0">
-                  <img src={r.imageUrl} className="w-full h-full object-contain" />
-                  <button onClick={() => setComparisonSelection(p => p.filter(x => x.id !== r.id))} className="absolute -top-2 -right-2 w-7 h-7 bg-red-600 rounded-full text-white text-[10px] font-bold">✕</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsShareMenuOpen(true)}
-                className="h-16 px-6 bg-white/10 text-white rounded-2xl border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-              </button>
-              <button onClick={() => setIsCompareOpen(true)} disabled={comparisonSelection.length < 2} className={`h-16 px-10 rounded-2xl font-black uppercase text-[11px] transition-all ${comparisonSelection.length === 2 ? 'bg-[#F39237] text-white shadow-xl' : 'bg-slate-800 text-slate-500'}`}>COMPARAR VS</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isCompareOpen && (
-        <div className="fixed inset-0 z-[500] p-4 flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-lg">
-          <div className="relative w-full max-w-6xl bg-[#1a1a1a]/95 border border-white/10 rounded-[4rem] p-6 sm:p-16 shadow-2xl animate-in zoom-in-95">
-            <div className="sticky top-0 bg-transparent flex justify-between items-center mb-16 pb-8 border-b border-white/5 z-20">
-              <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white">LV <span className="text-[#F39237]">VS</span> BATTLE</h3>
-              <div className="flex gap-4">
+              <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-10">
+                <button onClick={closeCamera} className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-white">✕</button>
                 <button
-                  onClick={() => setIsShareMenuOpen(true)}
-                  className="h-14 px-8 bg-[#0E7C7B] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-[#0c6b6a] transition-all"
+                  onClick={captureAndIdentify} disabled={isIdentifying}
+                  className={`w-24 h-24 rounded-full border-4 border-white flex items-center justify-center transition-all ${isIdentifying ? 'bg-white/20 scale-90' : 'bg-white/40 active:scale-90 shadow-[0_0_40px_rgba(255,255,255,0.3)]'}`}
                 >
-                  {isPt ? 'COMPARTILHAR' : 'SHARE'}
+                  {isIdentifying ? <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div> : <div className="w-16 h-16 bg-white rounded-full"></div>}
                 </button>
-                <button onClick={() => setIsCompareOpen(false)} className="h-14 w-14 bg-red-600/10 text-red-600 rounded-2xl border border-red-600/20 flex items-center justify-center font-black">✕</button>
+                <div className="w-16 h-16"></div> {/* spacer */}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
-              {/* Middle "VS" overlay for desktop */}
-              <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-[#F39237] rounded-full border-4 border-[#1a1a1a] items-center justify-center z-10 shadow-2xl">
-                <span className="text-xl font-black italic">VS</span>
-              </div>
+            <p className="mt-8 text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 text-center px-10">
+              {isIdentifying ? (isPt ? 'ANALISANDO EQUIPAMENTO...' : 'ANALYZING EQUIPMENT...') : (isPt ? 'POSICIONE A RAQUETE NO CENTRO' : 'POSITION THE RACKET IN THE CENTER')}
+            </p>
+          </div >
+        )
+      }
 
-              {comparisonSelection.map((r, i) => (
-                <div key={r.id} className="bg-[#111]/80 p-8 sm:p-14 rounded-[4rem] space-y-12 flex flex-col group">
-                  <div className="aspect-square bg-black/50 p-12 rounded-[3rem] border border-white/5 relative flex items-center justify-center group-hover:bg-[#050505] transition-all overflow-hidden">
-                    <img src={r.imageUrl} className="max-h-full max-w-full object-contain transition-transform duration-1000 group-hover:scale-110" />
-                    <div className="absolute top-6 left-6 px-6 py-2 bg-[#F39237] text-white text-[11px] font-black rounded-full uppercase">{r.brand}</div>
+      {
+        comparisonSelection.length > 0 && (
+          <div className="fixed bottom-24 lg:bottom-12 left-1/2 -translate-x-1/2 z-[400] w-full max-w-2xl px-4 animate-in slide-up">
+            <div className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 p-4 rounded-[2.5rem] shadow-2xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+                {comparisonSelection.map(r => (
+                  <div key={r.id} className="relative w-14 h-14 bg-black rounded-2xl border border-white/10 p-2 flex-shrink-0">
+                    <img src={r.imageUrl} className="w-full h-full object-contain" />
+                    <button onClick={() => setComparisonSelection(p => p.filter(x => x.id !== r.id))} className="absolute -top-2 -right-2 w-7 h-7 bg-red-600 rounded-full text-white text-[10px] font-bold">✕</button>
                   </div>
-                  <div className="text-center space-y-3">
-                    <h4 className="text-3xl font-black italic uppercase text-white leading-tight">{r.name}</h4>
-                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">{r.recommendedLevel}</p>
-                  </div>
-
-                  <div className="space-y-8 pt-10 border-t border-white/5">
-                    <SpecBar label="Power" value={r.powerLevel} color="bg-link-salmon" icon={<Icons.Power />} />
-                    <SpecBar label="Control" value={r.controlLevel} color="bg-link-teal" icon={<Icons.Control />} />
-                    <SpecBar label="Comfort" value={r.comfortLevel} color="bg-link-orange" icon={<Icons.Comfort />} />
-
-                    <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-white/5">
-                      <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Weight</p>
-                        <p className="text-sm font-black text-white">{r.weight}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Head Size</p>
-                        <p className="text-sm font-black text-white">{r.headSize}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Pattern</p>
-                        <p className="text-sm font-black text-white">{r.stringPattern}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Price</p>
-                        <p className="text-sm font-black text-[#0E7C7B]">{r.priceDisplay || '$' + r.priceValue}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedDetails && (
-        <div className="fixed inset-0 z-[600] p-4 flex items-center justify-center bg-black/60 backdrop-blur-xl">
-          <div className="relative w-full max-w-3xl bg-[#1a1a1a]/95 border border-white/10 rounded-[4rem] p-8 sm:p-16 shadow-2xl animate-in zoom-in-95 no-scrollbar max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-12">
-              <div className="space-y-3">
-                <span className="text-[11px] font-black text-[#F39237] uppercase tracking-[0.5em]">{selectedDetails.brand}</span>
-                <h3 className="text-4xl font-black italic uppercase text-white tracking-tighter leading-tight">{selectedDetails.name}</h3>
+                ))}
               </div>
               <div className="flex gap-2">
                 <ShareButton
-                  title={selectedDetails.name}
-                  text={`Confira os detalhes técnicos da ${selectedDetails.name} no LinkVision!`}
-                  className="p-5 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-[#F39237] transition-all"
+                  title="VS Battle LinkVision"
+                  text={`Quem ganha esse duelo? ${comparisonSelection[0]?.name} vs ${comparisonSelection[1]?.name || '??'}. Veja no Lab do LinkVision!`}
+                  className="h-16 px-6 bg-white/10 text-white rounded-2xl border border-white/10"
                 />
-                <button onClick={() => setSelectedDetails(null)} className="p-5 bg-[#232323]/50 border border-white/10 rounded-2xl text-slate-500 hover:text-white transition-all font-black">✕</button>
+                <button onClick={() => setIsCompareOpen(true)} disabled={comparisonSelection.length < 2} className={`h-16 px-10 rounded-2xl font-black uppercase text-[11px] transition-all ${comparisonSelection.length === 2 ? 'bg-[#F39237] text-white shadow-xl' : 'bg-slate-800 text-slate-500'}`}>COMPARAR VS</button>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="aspect-[4/5] rounded-[3rem] bg-black/50 p-10 flex items-center justify-center border border-white/5 overflow-hidden">
-                {selectedDetails.imageUrl ? (
-                  <img src={selectedDetails.imageUrl} className="max-h-full max-w-full object-contain" />
-                ) : (
-                  <button
-                    onClick={() => handleGenerateAiImage(selectedDetails)}
-                    className="bg-[#0E7C7B] text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all"
-                  >
-                    {isPt ? 'Gerar Imagem IA' : 'Generate AI Image'}
-                  </button>
-                )}
-              </div>
-              <div className="space-y-10">
-                <div className="space-y-6">
-                  <SpecBar label="Power" value={selectedDetails.powerLevel} color="bg-link-salmon" icon={<Icons.Power />} />
-                  <SpecBar label="Control" value={selectedDetails.controlLevel} color="bg-link-teal" icon={<Icons.Control />} />
-                  <SpecBar label="Comfort" value={selectedDetails.comfortLevel} color="bg-link-orange" icon={<Icons.Comfort />} />
+          </div >
+        )
+      }
+
+      {
+        isCompareOpen && (
+          <div className="fixed inset-0 z-[500] p-4 flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-lg">
+            <div className="relative w-full max-w-6xl bg-[#1a1a1a]/95 border border-white/10 rounded-[4rem] p-6 sm:p-16 shadow-2xl animate-in zoom-in-95">
+              <div className="sticky top-0 bg-transparent flex justify-between items-center mb-16 pb-8 border-b border-white/5 z-20">
+                <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white">LV <span className="text-[#F39237]">VS</span> BATTLE</h3>
+                <div className="flex gap-4">
+                  <ShareButton
+                    title="Resultado VS Battle"
+                    text={`O veredito das raquetes saiu no LinkVision: ${comparisonSelection.map(r => r.name).join(' vs ')}`}
+                    className="h-14 px-8 bg-[#0E7C7B] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl"
+                    label="COMPARTILHAR"
+                  />
+                  <button onClick={() => setIsCompareOpen(false)} className="h-14 w-14 bg-red-600/10 text-red-600 rounded-2xl border border-red-600/20 flex items-center justify-center font-black">✕</button>
                 </div>
-                <div className="bg-[#111]/80 rounded-[2.5rem] p-8 grid grid-cols-2 gap-6 border border-white/5">
-                  <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Weight</p><p className="text-sm font-black text-white">{selectedDetails.weight}</p></div>
-                  <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Head</p><p className="text-sm font-black text-white">{selectedDetails.headSize}</p></div>
-                  <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Pattern</p><p className="text-sm font-black text-white">{selectedDetails.stringPattern}</p></div>
-                  <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Price</p><p className="text-sm font-black text-[#F39237]">{selectedDetails.priceDisplay || selectedDetails.priceValue || 'N/A'}</p></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
+                {/* Middle "VS" overlay for desktop */}
+                <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-[#F39237] rounded-full border-4 border-[#1a1a1a] items-center justify-center z-10 shadow-2xl">
+                  <span className="text-xl font-black italic">VS</span>
+                </div>
+
+                {comparisonSelection.map((r, i) => (
+                  <div key={r.id} className="bg-[#111]/80 p-8 sm:p-14 rounded-[4rem] space-y-12 flex flex-col group">
+                    <div className="aspect-square bg-black/50 p-12 rounded-[3rem] border border-white/5 relative flex items-center justify-center group-hover:bg-[#050505] transition-all overflow-hidden">
+                      <img src={r.imageUrl} className="max-h-full max-w-full object-contain transition-transform duration-1000 group-hover:scale-110" />
+                      <div className="absolute top-6 left-6 px-6 py-2 bg-[#F39237] text-white text-[11px] font-black rounded-full uppercase">{r.brand}</div>
+                    </div>
+                    <div className="text-center space-y-3">
+                      <h4 className="text-3xl font-black italic uppercase text-white leading-tight">{r.name}</h4>
+                      <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">{r.recommendedLevel}</p>
+                    </div>
+
+                    <div className="space-y-8 pt-10 border-t border-white/5">
+                      <SpecBar label="Power" value={r.powerLevel} color="bg-link-salmon" icon={<Icons.Power />} />
+                      <SpecBar label="Control" value={r.controlLevel} color="bg-link-teal" icon={<Icons.Control />} />
+                      <SpecBar label="Comfort" value={r.comfortLevel} color="bg-link-orange" icon={<Icons.Comfort />} />
+
+                      <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-white/5">
+                        <div className="space-y-1">
+                          <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Weight</p>
+                          <p className="text-sm font-black text-white">{r.weight}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Head Size</p>
+                          <p className="text-sm font-black text-white">{r.headSize}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Pattern</p>
+                          <p className="text-sm font-black text-white">{r.stringPattern}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest">Price</p>
+                          <p className="text-sm font-black text-[#0E7C7B]">{r.priceDisplay || '$' + r.priceValue}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div >
+        )
+      }
+
+      {
+        selectedDetails && (
+          <div className="fixed inset-0 z-[600] p-4 flex items-center justify-center bg-black/60 backdrop-blur-xl">
+            <div className="relative w-full max-w-3xl bg-[#1a1a1a]/95 border border-white/10 rounded-[4rem] p-8 sm:p-16 shadow-2xl animate-in zoom-in-95 no-scrollbar max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-start mb-12">
+                <div className="space-y-3">
+                  <span className="text-[11px] font-black text-[#F39237] uppercase tracking-[0.5em]">{selectedDetails.brand}</span>
+                  <h3 className="text-4xl font-black italic uppercase text-white tracking-tighter leading-tight">{selectedDetails.name}</h3>
+                </div>
+                <div className="flex gap-2">
+                  <ShareButton
+                    title={selectedDetails.name}
+                    text={`Confira os detalhes técnicos da ${selectedDetails.name} no LinkVision!`}
+                    className="p-5 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-[#F39237] transition-all"
+                  />
+                  <button onClick={() => setSelectedDetails(null)} className="p-5 bg-[#232323]/50 border border-white/10 rounded-2xl text-slate-500 hover:text-white transition-all font-black">✕</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="aspect-[4/5] rounded-[3rem] bg-black/50 p-10 flex items-center justify-center border border-white/5 overflow-hidden">
+                  {selectedDetails.imageUrl ? (
+                    <img src={selectedDetails.imageUrl} className="max-h-full max-w-full object-contain" />
+                  ) : (
+                    <button
+                      onClick={() => handleGenerateAiImage(selectedDetails)}
+                      className="bg-[#0E7C7B] text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all"
+                    >
+                      {isPt ? 'Gerar Imagem IA' : 'Generate AI Image'}
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-10">
+                  <div className="space-y-6">
+                    <SpecBar label="Power" value={selectedDetails.powerLevel} color="bg-link-salmon" icon={<Icons.Power />} />
+                    <SpecBar label="Control" value={selectedDetails.controlLevel} color="bg-link-teal" icon={<Icons.Control />} />
+                    <SpecBar label="Comfort" value={selectedDetails.comfortLevel} color="bg-link-orange" icon={<Icons.Comfort />} />
+                  </div>
+                  <div className="bg-[#111]/80 rounded-[2.5rem] p-8 grid grid-cols-2 gap-6 border border-white/5">
+                    <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Weight</p><p className="text-sm font-black text-white">{selectedDetails.weight}</p></div>
+                    <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Head</p><p className="text-sm font-black text-white">{selectedDetails.headSize}</p></div>
+                    <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Pattern</p><p className="text-sm font-black text-white">{selectedDetails.stringPattern}</p></div>
+                    <div><p className="text-[9px] text-slate-600 font-black uppercase mb-1">Price</p><p className="text-sm font-black text-[#F39237]">{selectedDetails.priceDisplay || selectedDetails.priceValue || 'N/A'}</p></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-      {isShareMenuOpen && (
-        <ShareMenu
-          rackets={comparisonSelection}
-          isPt={isPt}
-          onClose={() => setIsShareMenuOpen(false)}
-        />
-      )}
-    </div>
+          </div >
+        )
+      }
+      {
+        isShareMenuOpen && (
+          <ShareMenu
+            rackets={comparisonSelection}
+            isPt={isPt}
+            onClose={() => setIsShareMenuOpen(false)}
+          />
+        )
+      }
+    </div >
   );
 };
 

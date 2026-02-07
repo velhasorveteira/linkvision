@@ -106,7 +106,7 @@ export const analyzeGameplayVideo = async (
 export const fetchTennisNews = async (lang: Language): Promise<{ articles: any[] }> => {
   const ai = getAI();
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: [{ role: 'user', parts: [{ text: `Get 5 top stories in professional tennis from today. For each story, provide: title, summary (as 'description'), sourceName, and sourceUrl. Output strictly a JSON object with an 'articles' array in ${lang}.` }] }],
     config: {
       systemInstruction: "You are a professional tennis news aggregator. Use Google Search to find real, current news. Output only the JSON object, no markdown or extra text.",
@@ -150,7 +150,7 @@ export const generateNewsIllustration = async (title: string, desc: string): Pro
   const ai = getAI();
   const prompt = `A comical, high-quality cartoon illustration of a tennis-related scene inspired by: "${title}". Vibrant colors, expressive characters, humorous and non-offensive sports caricature style. High quality, sharp lines, NO text or logos.`;
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.5-flash-image',
     contents: { parts: [{ text: prompt }] }
   }));
   for (const part of response.candidates?.[0]?.content?.parts || []) {
@@ -168,7 +168,7 @@ export const search_racket_image = async (brand: string, name: string): Promise<
 
   try {
     const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }]
@@ -188,7 +188,7 @@ export const search_racket_image = async (brand: string, name: string): Promise<
 export const generate_racket_image = async (prompt: string, size: ImageSize, aspectRatio: AspectRatio): Promise<string> => {
   const ai = getAI();
   const isProModel = size === '2K' || size === '4K';
-  const model = isProModel ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+  const model = isProModel ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
 
   let supportedAspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "1:1";
   if (['1:1', '3:4', '4:3', '9:16', '16:9'].includes(aspectRatio)) supportedAspectRatio = aspectRatio as any;
@@ -199,7 +199,7 @@ export const generate_racket_image = async (prompt: string, size: ImageSize, asp
     config: {
       imageConfig: {
         aspectRatio: supportedAspectRatio,
-        ...(model === 'gemini-2.5-pro' ? { imageSize: size as any } : {})
+        ...(model.includes('pro') ? { imageSize: size as any } : {})
       }
     }
   }));
@@ -212,7 +212,7 @@ export const generate_racket_image = async (prompt: string, size: ImageSize, asp
 export const translateInterface = async (lang: Language, ui: any): Promise<any> => {
   const ai = getAI();
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: `Translate the following UI labels into ${lang}. Keep JSON structure identical: ${JSON.stringify(ui)}`,
     config: { responseMimeType: "application/json" }
   }));
@@ -228,7 +228,7 @@ export const identify_racket_from_image = async (imageBase64: string): Promise<P
   const base64Data = imageBase64.split(',')[1] || imageBase64;
   const mimeType = imageBase64.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: {
       parts: [
         { inlineData: { data: base64Data, mimeType } },
@@ -349,7 +349,7 @@ export const searchCourtsByText = async (query: string, lang: Language): Promise
 export const processUserFeedback = async (type: FeedbackType, message: string, lang: Language): Promise<string> => {
   const ai = getAI();
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: `User provided ${type} feedback: "${message}". Please provide a helpful and professional response in ${lang}.`,
   }));
   return response.text || "";
@@ -409,7 +409,7 @@ export const animateTennisPhoto = async (imageSource: string, prompt: string, as
 export const transcribeCoachAudio = async (base64Audio: string): Promise<string> => {
   const ai = getAI();
   const response = await fetchWithRetry<GenerateContentResponse>(() => ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     contents: {
       parts: [
         { inlineData: { data: base64Audio, mimeType: 'audio/wav' } },

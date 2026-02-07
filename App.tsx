@@ -80,6 +80,8 @@ const App: React.FC = () => {
       videoQuality: savedQuality,
       autoStart: savedAutoStart,
       isFeedbackOpen: false,
+      user: null,
+      isLanguageModalOpen: false,
       isSettingsModalOpen: false
     };
   });
