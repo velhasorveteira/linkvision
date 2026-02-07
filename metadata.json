@@ -1,0 +1,9 @@
+{
+  "name": "Copy of  LinkVision p01",
+  "description": "- Análise técnica de tênis fundindo tradição e tecnologia com IA generativa.\n",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
